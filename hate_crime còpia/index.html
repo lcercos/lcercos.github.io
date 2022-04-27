@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+  <head>
+    <title>Hate crimes sexuality</title>
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&display=swap" rel="stylesheet">
+</head>
+
+<style type="text/css">
+div.tooltip {
+     position: absolute;
+     text-align: center;
+     padding: .5rem;
+     background: #FFFFFF;
+     color: #313639;
+     border: 1px solid #313639;
+     border-radius: 6px;
+     pointer-events: none;
+     font-size: 1rem;
+     font-family: sans-serif;
+}
+
+.h1 {
+  font-family: 'Merriweather', serif;
+  font-style: Black;
+}
+
+.p1{
+  font-family:'Merriweather', serif;
+  font-style: Light;
+}
+
+.p2 {
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  line-height: 15px;
+  color: #767676;
+  display: inline-block;
+}
+</style>
+
+<body>
+<h1 class="h1">Hate crimes in Englands and Wales</h1>
+<p class="p1">In ten years, the number of reported hate crimes related to sexuality have increased massively</p>
+
+
+<!-- Add 2 buttons -->
+<button onclick="update(data1)">2011/12</button>
+<button onclick="update(data2)">2020/21</button>
+
+<!-- Create a div where the graph will take place -->
+<div id="my_dataviz"></div>
+
+<script type="text/javascript">
+
+// create 2 data_set
+var data1 = [
+   {group: "Sexual orientation", value: 4345},
+   {group: "Transgender identity", value: 313}
+];
+
+var data2 = [
+  {group: "Sexual orientation", value: 18596},
+  {group: "Transgender identity", value: 2799}
+];
+
+
+// set the dimensions and margins of the graph
+var margin = {top: 30, right: 30, bottom: 70, left: 60},
+    width = 460 - margin.left - margin.right,
+    height = 400 - margin.top - margin.bottom;
+
+// append the svg object to the body of the page
+var svg = d3.select("#my_dataviz")
+  .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+// X axis
+var x = d3.scaleBand()
+  .range([ 0, width ])
+  .domain(data1.map(function(d) { return d.group; }))
+  .padding(0.2);
+svg.append("g")
+  .attr("transform", "translate(0," + height + ")")
+  .call(d3.axisBottom(x))
+
+// Add Y axis
+var y = d3.scaleLinear()
+  .domain([0, 19000])
+  .range([ height, 0]);
+svg.append("g")
+  .attr("class", "myYaxis")
+  .call(d3.axisLeft(y));
+
+// A function that create / update the plot for a given variable:
+function update(data) {
+
+  var u = svg.selectAll("rect")
+    .data(data)
+  var div = d3.select("body").append("div")
+     .attr("class", "tooltip")
+     .style("opacity", 0);
+  u
+    .enter()
+    .append("rect")
+    .merge(u)
+    .on("mouseover", function (d, i) {
+          d3.select(this).transition()
+               .duration("50")
+               .attr("opacity", ".85");
+          div.transition()
+               .duration(50)
+               .style("opacity", 1);
+          div.html(d.value)
+               .style("left", (d3.event.pageX + 10) + "px")
+               .style("top", (d3.event.pageY - 15) + "px");
+     })
+     .on("mouseout", function (d, i) {
+          d3.select(this).transition()
+               .duration("50")
+               .attr("opacity", "1");
+          div.transition()
+               .duration("50")
+               .style("opacity", 0);
+     })
+    .transition()
+    .duration(1000)
+      .attr("x", function(d) { return x(d.group); })
+      .attr("y", function(d) { return y(d.value); })
+      .attr("width", x.bandwidth())
+      .attr("height", function(d) { return height - y(d.value); })
+      .attr("fill", "#B22222")
+
+}
+
+// Initialize the plot with the first dataset
+update(data1)
+
+
+
+</script>
+
+
+<p class="p2">Guardian Graphic. Source: Police recorded crime, Home Office</p>
+</body>
+</html>
