@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<!-- Create a div where the graph will take place -->
+<div id="my_dataviz"></div><html>
+  <head>
+    <title>Hate crimes sexuality</title>
+    <script src="https://d3js.org/d3.v6.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&display=swap" rel="stylesheet">
+</head>
+
+<style type="text/css">
+div.tooltip {
+     position: absolute;
+     text-align: center;
+     padding: .5rem;
+     background: #FFFFFF;
+     color: #313639;
+     border: 1px solid #313639;
+     border-radius: 6px;
+     pointer-events: none;
+     font-size: 1rem;
+     font-family: sans-serif;
+}
+
+.h1 {
+  font-family: 'Merriweather', serif;
+  font-style: Black;
+}
+
+.p1{
+  font-family: Arial, sans-serif;
+  font-style: Light;
+  font-size: 14px;
+}
+
+.p2 {
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  line-height: 15px;
+  color: #767676;
+  display: inline-block;
+}
+</style>
+
+<body>
+<h4 class="h1">The number of reported hate crimes against the transgender community increased 794% in ten years in England and Wales</h4>
+<p class="p1">*There's no data for 2019/2020</p>
+
+
+<!-- Create a div where the graph will take place -->
+<div id="my_dataviz"></div>
+
+<script type="text/javascript">
+
+// set the dimensions and margins of the graph
+const margin = {top: 10, right: 30, bottom: 30, left: 60},
+    width = 950 - margin.left - margin.right,
+    height = 400 - margin.top - margin.bottom;
+
+// append the svg object to the body of the page
+const svg = d3.select("#my_dataviz")
+  .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",`translate(${margin.left},${margin.top})`);
+
+//Read the data
+d3.csv("https://raw.githubusercontent.com/lcercos/lcercos.github.io/main/hate_crime/transgender_data.csv",
+
+  // When reading the csv, I must format variables:
+  d => {
+      return {date : d3.timeParse("%Y")(d.date), value : d.value}}).then(
+
+  // Now I can use this dataset:
+  function(data) {
+
+    // Add X axis --> it is a date format
+    const x = d3.scaleTime()
+      .domain(d3.extent(data, d => d.date))
+      .range([ 0, width ]);
+    svg.append("g")
+      .attr("transform", `translate(0, ${height})`)
+      .call(d3.axisBottom(x));
+
+    // Add Y axis
+    const y = d3.scaleLinear()
+      .domain( [300, 3000])
+      .range([ height, 0 ]);
+    svg.append("g")
+      .call(d3.axisLeft(y));
+
+    // Add the line
+    svg.append("path")
+      .datum(data)
+      .attr("fill", "none")
+      .attr("stroke", "black")
+      .attr("stroke-width", 1.5)
+      .attr("d", d3.line()
+        .x(d => x(d.date))
+        .y(d => y(d.value))
+        )
+
+    // create a tooltip
+    const Tooltip = d3.select("#my_dataviz")
+      .append("div")
+      .style("opacity", 0)
+      .attr("class", "tooltip")
+      .style("background-color", "white")
+      .style("border", "solid")
+      .style("border-width", "2px")
+      .style("border-radius", "5px")
+      .style("padding", "5px")
+
+      // Three function that change the tooltip when user hover / move / leave a cell
+      const mouseover = function(event,d) {
+        Tooltip
+          .style("opacity", 1)
+      }
+      const mousemove = function(event,d) {
+        Tooltip
+          .html("Number of reported crimes: " + d.value)
+          .style("left", `${event.layerX+10}px`)
+          .style("top", `${event.layerY}px`)
+      }
+      const mouseleave = function(event,d) {
+        Tooltip
+          .style("opacity", 0)
+      }
+
+
+
+    // Add the points
+    svg
+      .append("g")
+      .selectAll("dot")
+      .data(data)
+      .join("circle")
+        .attr("class", "myCircle")
+        .attr("cx", d => x(d.date))
+        .attr("cy", d => y(d.value))
+        .attr("r", 5)
+        .attr("stroke", "#B22222")
+        .attr("stroke-width", 3)
+        .attr("fill", "white")
+        .on("mouseover", mouseover)
+        .on("mousemove", mousemove)
+        .on("mouseleave", mouseleave)
+})
+</script>
+
+
+<p class="p2">Guardian Graphic. Source: Police recorded crime, Home Office</p>
+</body>
+</html>
