@@ -4,19 +4,13 @@
   <head>
     <title>Seats held by women in national parliaments and governments</title>
     <script src="https://d3js.org/d3.v4.js"></script>
-    // Loaded font families from Google
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&display=swap" rel="stylesheet">
-    
-    // Loaded D3 chromatic scale and map projection
     <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
     <script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
-
-    // I edited the CSS style
-    <style type="text/css">
     
-    // For the data callouts
+    <style type="text/css">
       div.tooltip {
            position: absolute;
            text-align: center;
@@ -29,8 +23,6 @@
            font-size: 1rem;
            font-family: sans-serif;
       }
-
-      // For the title, paragraph and caption
       .h1 {
         font-family: 'Merriweather', serif;
         font-style: Black;
@@ -48,8 +40,6 @@
         color: #767676;
         display: inline-block;
       }
-
-      // For the map background
       .sea {
         background: #EAF9FF
       }
@@ -81,22 +71,20 @@
     // Data and color scale
     var data = d3.map();
     var colorScale = d3.scaleThreshold()
-      .domain([10, 15, 20, 25, 30, 35, 40, 45, 50]) // I adapted the scale to my data
-      .range(d3.schemePurples[9]); // Changed the color
+      .domain([10, 15, 20, 25, 30, 35, 40, 45, 50])
+      .range(d3.schemePurples[9]);
 
-    // Loaded external data - geojson file and the CSV edited with the same ID
+    // Loaded geojson file and the CSV edited with the same ID
     d3.queue()
       .defer(d3.json, "https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson")
       .defer(d3.csv, "https://raw.githubusercontent.com/lcercos/geojson/main/eurostat_data-map.csv", function(d) { data.set(d.code, +d.pop); })
       .await(ready);
 
-      // The tooltip function so when the mouse is not over the tooltip is not seen
     function ready(error, topo) {
       var div = d3.select("body").append("div")
          .attr("class", "tooltip")
          .style("opacity", 0);
 
-      // The mouse over function so the not selected countries lose opacity and the selected country outstands with the tooltip
       let mouseOver = function(d) {
         d3.selectAll(".Country")
           .transition()
@@ -113,7 +101,6 @@
                .duration(50)
                .style("opacity", 1);
         
-        // The tooltip text with and if-else condition so it shows different text for countries with data and with not
           div.html(function() {
     if (d.total == 0) {
         return d.properties.name + ": " + "No data";
@@ -126,7 +113,6 @@
 
       }
 
-      // The function then the mouse is not over a country
       let mouseLeave = function(d) {
         d3.selectAll(".Country")
           .transition()
